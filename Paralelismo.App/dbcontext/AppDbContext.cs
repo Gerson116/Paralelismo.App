@@ -9,7 +9,7 @@ namespace Paralelismo.App.Data
 
         public AppDbContext()
         {
-            // Cadena por defecto a LocalDB. Puedes cambiarla en tiempo de ejecución
+            // Cadena por defecto a LocalDB. Puedes cambiarla en tiempo de ejecuciï¿½n
             _connectionString = "Server=(localdb)\\MSSQLLocalDB;Database=ParalelismoDb;Trusted_Connection=True;";
         }
 
@@ -26,7 +26,8 @@ namespace Paralelismo.App.Data
         {
             if (!optionsBuilder.IsConfigured)
             {
-                optionsBuilder.UseSqlServer(_connectionString);
+                // optionsBuilder.UseSqlServer(_connectionString);
+                optionsBuilder.UseInMemoryDatabase("MiDbEnMemoria");
             }
         }
 

@@ -9,13 +9,14 @@ class Program
 {
     static async Task Main(string[] args)
     {
-        string relativePath = "D:\\repos\\Paralelismo.App\\Paralelismo.App\\Data\\";
+        // string relativePath = "D:\\repos\\Paralelismo.App\\Paralelismo.App\\Data\\";
+        string relativePath = "C:\\Users\\Laptop\\Documents\\repos\\Paralelismo.App\\Paralelismo.App\\Data\\";
 
         Console.WriteLine("Hello, World!");
 
         using var db = new AppDbContext();
 
-        await db.Database.ExecuteSqlRawAsync("DELETE FROM ArticulosVendidos; DELETE FROM Facturas; DELETE FROM Marcas; DELETE FROM Clientes;");
+        // await db.Database.ExecuteSqlRawAsync("DELETE FROM ArticulosVendidos; DELETE FROM Facturas; DELETE FROM Marcas; DELETE FROM Clientes;");
 
         var clientesCountAfterDelete = await db.Clientes.CountAsync();
         var facturasCountAfterDelete = await db.Facturas.CountAsync();
@@ -78,22 +79,22 @@ class Program
 
         try
         {
-            await db.Database.OpenConnectionAsync();
-            await using var transaction = await db.Database.BeginTransactionAsync();
+            // await db.Database.OpenConnectionAsync();
+            // await using var transaction = await db.Database.BeginTransactionAsync();
             try
             {
                 await db.SaveChangesAsync();
 
-                await transaction.CommitAsync();
+                // await transaction.CommitAsync();
             }
             catch
             {
-                await transaction.RollbackAsync();
+                // await transaction.RollbackAsync();
                 throw;
             }
             finally
             {
-                await db.Database.CloseConnectionAsync();
+                // await db.Database.CloseConnectionAsync();
             }
         }
         catch (DbUpdateException ex)
