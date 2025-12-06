@@ -1,0 +1,85 @@
+# Visual Studio / .NET
+.vs/
+*.user
+*.suo
+*.userosscache
+*.sln.docstates
+
+# Build results
+bin/
+obj/
+
+# Rider
+.idea/
+
+# VS Code
+.vscode/
+
+# NuGet
+*.nupkg
+# The packages folder can be ignored because of PackageReference
+packages/
+
+# MSBuild
+*.log
+*.vspscc
+*.vssscc
+
+# Dotnet publish
+publish/
+
+# Entity Framework local DB files
+*.mdf
+*.ldf
+
+# LocalDB user instance
+*.ldf
+
+# User secrets and environment files
+secrets.json
+.env
+.env.*
+
+# Test results
+TestResults/
+*.trx
+
+# Coverage
+coverage.*
+coverage/
+*.coverage
+*.coveragexml
+
+# Temporary files
+*.tmp
+*.temp
+~$*
+*.stackdump
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# JetBrains
+*.iml
+out/
+
+# Tools
+.toolstarget
+.nuget/
+
+# Logs
+logs/
+*.log
+
+# Generated EF migrations snapshot binaries (if any)
+**/obj/**
+
+# Ignore user-specific launch settings
+launchSettings.json
+
+# Ignore Local NuGet caches
+.nuget/packages/
+
+# Visual Studio Code workspace storage
+.vscode/*workspaceStorage/
