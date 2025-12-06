@@ -13,13 +13,10 @@ class Program
 
         Console.WriteLine("Hello, World!");
 
-        // Crear el DbContext (no se llama SaveChanges hasta que terminen las cargas)
         using var db = new AppDbContext();
-        //await db.Database.MigrateAsync();
 
         await db.Database.ExecuteSqlRawAsync("DELETE FROM ArticulosVendidos; DELETE FROM Facturas; DELETE FROM Marcas; DELETE FROM Clientes;");
 
-        // Verificar que las tablas quedaron vacías
         var clientesCountAfterDelete = await db.Clientes.CountAsync();
         var facturasCountAfterDelete = await db.Facturas.CountAsync();
         var marcasCountAfterDelete = await db.Marcas.CountAsync();
@@ -31,29 +28,26 @@ class Program
         Console.WriteLine($"  Marcas: {marcasCountAfterDelete}");
         Console.WriteLine($"  ArticulosVendidos: {articulosCountAfterDelete}");
 
-        // Informar si la eliminación dejó tablas vacías
         if (clientesCountAfterDelete == 0 && facturasCountAfterDelete == 0 && marcasCountAfterDelete == 0 && articulosCountAfterDelete == 0)
         {
             Console.WriteLine("Eliminación realizada: todas las tablas están vacías.");
+            Console.WriteLine("------------------------------------------------------------");
         }
         else
         {
             Console.WriteLine("Eliminación parcial: revisar los conteos anteriores para más detalles.");
         }
 
-        // Iniciar cargas en paralelo
         Task<List<Cliente>> tClientes = CargarClientes(relativePath);
         Task<List<Factura>> tFacturas = CargarFacturas(relativePath);
         Task<List<Marca>> tMarcas = CargarMarcas(relativePath);
         Task<List<ArticuloVendido>> tArticulosVendidos = CargarArticulosVendidos(relativePath);
 
-        // Esperar a que todas las cargas finalicen
         await Task.WhenAll(tClientes, tFacturas, tMarcas, tArticulosVendidos);
 
-        // Mostrar cantidad de elementos cargados antes de guardar
         Console.WriteLine($"Resumen de carga: Clientes={tClientes.Result.Count}, Facturas={tFacturas.Result.Count}, Marcas={tMarcas.Result.Count}, ArticulosVendidos={tArticulosVendidos.Result.Count}");
+        Console.WriteLine("------------------------------------------------------------");
 
-        // Mapear resultados y guardar en la base de datos
         var clientes = tClientes.Result;
         if (clientes.Any())
         {
@@ -84,7 +78,6 @@ class Program
 
         try
         {
-            // Abrir conexión y usar transacción para permitir SET IDENTITY_INSERT
             await db.Database.OpenConnectionAsync();
             await using var transaction = await db.Database.BeginTransactionAsync();
             try
@@ -133,7 +126,6 @@ class Program
 
         Console.WriteLine("Cargando clientes Hilo 1");
 
-        #region Leyendo archivos
         var linea = await File.ReadAllLinesAsync(relativePath);
 
         var clientesDTO = new List<ClienteDTO>();
@@ -142,11 +134,9 @@ class Program
         if (linea.Length == 0)
             throw new Exception("El archivo de clientes está vacío.");
 
-        // Empezar en 1 para omitir el encabezado (línea 0)
         int filasProcesadas = 0;
         for (int i = 1; i < linea.Length; i++)
         {
-            //  Nombre,Apellido,Email,Cedula
             var element = linea[i];
             if (string.IsNullOrWhiteSpace(element)) continue;
 
@@ -167,7 +157,6 @@ class Program
             clientes.Add(cliente);
             filasProcesadas++;
         }
-        #endregion
 
         await Task.Delay(2000);
         sw.Stop();
@@ -199,7 +188,6 @@ class Program
 
         Console.WriteLine("Cargando facturas Hilo 2");
 
-        #region Leyendo archivos
         var linea = await File.ReadAllLinesAsync(relativePath);
 
         var facturasDTO = new List<FacturaDTO>();
@@ -209,10 +197,8 @@ class Program
             throw new Exception("El archivo de facturas está vacío.");
 
         int filasProcesadas = 0;
-        // Empezar en 1 para omitir encabezado
         for (int i = 1; i < linea.Length; i++)
         {
-            //  Monto,Cantidad,ITBIS,Descuento
             var element = linea[i];
             if (string.IsNullOrWhiteSpace(element)) continue;
             var parts = ConvertirLineasCsv(element);
@@ -232,7 +218,6 @@ class Program
             facturas.Add(factura);
             filasProcesadas++;
         }
-        #endregion
 
         await Task.Delay(2000);
         sw.Stop();
@@ -251,7 +236,6 @@ class Program
 
         Console.WriteLine("Cargando marcas Hilo 3");
 
-        #region Leyendo archivos
         var linea = await File.ReadAllLinesAsync(relativePath);
 
         var marcasDTO = new List<MarcaDTO>();
@@ -261,10 +245,8 @@ class Program
             throw new Exception("El archivo de marcas está vacío.");
 
         int filasProcesadas = 0;
-        // Empezar en 1 para omitir encabezado
         for (int i = 1; i < linea.Length; i++)
         {
-            //  Nombre,Marca,Origen
             var element = linea[i];
             if (string.IsNullOrWhiteSpace(element)) continue;
 
@@ -283,7 +265,6 @@ class Program
             marcas.Add(marcaEntity);
             filasProcesadas++;
         }
-        #endregion
 
         await Task.Delay(2000);
         sw.Stop();
@@ -300,7 +281,6 @@ class Program
         if (!File.Exists(relativePath))
             throw new FileNotFoundException("El archivo de artículos vencidos no fue encontrado.");
 
-        #region Leyendo archivos
         var linea = await File.ReadAllLinesAsync(relativePath);
 
         var articulosDTO = new List<ArticuloVendidoDTO>();
@@ -310,10 +290,8 @@ class Program
             throw new Exception("El archivo de artículos vendidos está vacío.");
 
         int filasProcesadas = 0;
-        // Empezar en 1 para omitir encabezado
         for (int i = 1; i < linea.Length; i++)
         {
-            //  MarcaId,    FechaVencimiento,   NumeroDeLote
             var element = linea[i];
             if (string.IsNullOrWhiteSpace(element)) continue;
 
@@ -334,9 +312,9 @@ class Program
                 filasProcesadas++;
             }
         }
-        #endregion
 
         Console.WriteLine("Cargando artículos vencidos Hilo 4");
+        Console.WriteLine("------------------------------------------------------------------------");
 
         await Task.Delay(2000);
         sw.Stop();
@@ -344,11 +322,6 @@ class Program
         return articulos;
     }
 
-    /// <summary>
-    /// Convierte una línea de texto en formato CSV en una lista de valores.
-    /// </summary>
-    /// <param name="line"></param>
-    /// <returns></returns>
     static List<string> ConvertirLineasCsv(string line)
     {
         var result = new List<string>();
